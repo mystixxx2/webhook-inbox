@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Webhook Inbox</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <script defer src="/app.js"></script>
+</head>
+
+<body>
+  <div class="bg">
+    <div class="orb o1"></div>
+    <div class="orb o2"></div>
+    <div class="orb o3"></div>
+    <div class="grain"></div>
+  </div>
+
+  <div class="wrap">
+    <header class="hero">
+      <div class="hero-top">
+        <div class="logo">
+          <span class="spark"></span>
+          <span class="logo-text">Webhook Inbox</span>
+        </div>
+
+        <div class="pill pill-live" id="livePill">LIVE</div>
+      </div>
+
+      <h1 class="title">Receive & inspect webhook payloads</h1>
+      <p class="subtitle">Purple-glass dashboard for posts. Copy. Filter. Test.</p>
+
+      <div class="endpoint glass">
+        <div class="endpoint-left">
+          <div class="label">Webhook endpoint</div>
+          <div class="mono" id="endpointUrl">…</div>
+        </div>
+
+        <div class="endpoint-actions">
+          <button class="btn btn-ghost" data-copy="#endpointUrl">Copy URL</button>
+          <button class="btn btn-primary" id="btnSendSample">Send sample</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="grid">
+      <section class="panel glass">
+        <div class="panel-head">
+          <h2>Controls</h2>
+          <div class="mini" id="storageMini">storage: …</div>
+        </div>
+
+        <div class="row">
+          <button class="btn btn-secondary" id="btnPause">Pause</button>
+          <button class="btn btn-ghost" id="btnClearView">Clear view</button>
+        </div>
+
+        <div class="field">
+          <label for="search">Search</label>
+          <input id="search" class="input" placeholder="id, key, value, ip…" autocomplete="off" />
+        </div>
+
+        <details class="details">
+          <summary>Send a custom test payload</summary>
+
+          <div class="field">
+            <label for="testJson">JSON</label>
+            <textarea id="testJson" class="textarea" spellcheck="false">{ "hello": "world", "purple": true }</textarea>
+          </div>
+
+          <div class="row">
+            <button class="btn btn-primary" id="btnSendCustom">Send</button>
+            <button class="btn btn-ghost" id="btnPretty">Pretty</button>
+          </div>
+
+          <div class="mini" id="testResult"></div>
+        </details>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-k">Events</div>
+            <div class="stat-v" id="statCount">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-k">Last update</div>
+            <div class="stat-v" id="statUpdated">—</div>
+          </div>
+          <div class="stat">
+            <div class="stat-k">Bytes</div>
+            <div class="stat-v" id="statBytes">—</div>
+          </div>
+        </div>
+
+        <div class="hint">
+          Optional security: set <code>WEBHOOK_TOKEN</code> on your deploy, then send header
+          <code>X-Webhook-Token</code> with your POSTs.
+        </div>
+      </section>
+
+      <section class="panel glass feed">
+        <div class="panel-head feed-head">
+          <h2>Incoming</h2>
+          <div class="row right">
+            <button class="btn btn-ghost" id="btnCopyCurl">Copy cURL</button>
+          </div>
+        </div>
+
+        <div id="empty" class="empty">
+          No webhooks yet. Send a POST to <span class="mono" id="endpointUrlInline">…</span>.
+        </div>
+
+        <div id="feed" class="feed-list"></div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <span class="mini">Made for quick webhook debugging ✨</span>
+    </footer>
+
+    <div class="toast" id="toast" aria-live="polite"></div>
+  </div>
+</body>
+</html>
