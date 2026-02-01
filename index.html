@@ -4,8 +4,138 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Webhook Inbox</title>
-  <link rel="stylesheet" href="/styles.css" />
-  <script defer src="/app.js"></script>
+
+  <style>
+    /* ===== INLINE CSS (VERCEL SAFE) ===== */
+
+    :root{
+      --bg0:#070612;
+      --bg1:#0b0720;
+      --glass: rgba(255,255,255,.08);
+      --stroke: rgba(255,255,255,.14);
+
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.68);
+      --faint: rgba(255,255,255,.50);
+
+      --p1:#a855f7;
+      --p2:#c084fc;
+      --p3:#f0abfc;
+
+      --shadow: 0 24px 80px rgba(0,0,0,.55);
+      --radius: 20px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      color:var(--text);
+      font: 14px/1.45 system-ui, -apple-system, Segoe UI, Roboto;
+      background:
+        radial-gradient(1200px 800px at 15% 10%, rgba(168,85,247,.25), transparent 55%),
+        radial-gradient(900px 700px at 85% 15%, rgba(192,132,252,.20), transparent 55%),
+        radial-gradient(1100px 900px at 55% 90%, rgba(240,171,252,.12), transparent 55%),
+        linear-gradient(160deg, var(--bg0), var(--bg1));
+      overflow-x:hidden;
+    }
+
+    .bg{ position:fixed; inset:0; pointer-events:none; }
+    .orb{
+      position:absolute;
+      border-radius:999px;
+      filter: blur(28px);
+      opacity:.65;
+      background:
+        radial-gradient(circle at 30% 30%, #fff, var(--p3) 35%, transparent 60%),
+        radial-gradient(circle at 60% 55%, var(--p2), transparent 70%);
+    }
+    .o1{ width:420px; height:420px; left:-120px; top:-120px; }
+    .o2{ width:520px; height:520px; right:-180px; top:120px; }
+    .o3{ width:620px; height:620px; left:20%; bottom:-260px; opacity:.45; }
+
+    .wrap{
+      max-width:1180px;
+      margin:0 auto;
+      padding:28px 18px 38px;
+      position:relative;
+    }
+
+    .glass{
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06));
+      border:1px solid var(--stroke);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .hero{ display:flex; flex-direction:column; gap:14px; margin-bottom:22px; }
+
+    .hero-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .logo{ display:flex; align-items:center; gap:10px; }
+    .spark{
+      width:12px;
+      height:12px;
+      border-radius:999px;
+      background: radial-gradient(circle, #fff, var(--p2));
+      box-shadow: 0 0 20px var(--p2);
+    }
+
+    .title{
+      font-size: clamp(26px, 4vw, 40px);
+      margin:0;
+      text-shadow: 0 0 24px rgba(168,85,247,.22);
+    }
+
+    .subtitle{ margin:0; color:var(--muted); }
+
+    .pill{
+      font-size:12px;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+    }
+
+    .endpoint{
+      display:flex;
+      justify-content:space-between;
+      padding:14px 16px;
+      gap:14px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 360px 1fr;
+      gap:16px;
+    }
+
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .panel{ padding:16px; }
+
+    .empty{
+      padding:16px;
+      border-radius:18px;
+      border:1px dashed rgba(255,255,255,.16);
+      background: rgba(255,255,255,.05);
+      color: var(--muted);
+    }
+
+    footer{
+      margin-top:18px;
+      text-align:center;
+      color: var(--muted);
+    }
+  </style>
 </head>
 
 <body>
@@ -13,7 +143,6 @@
     <div class="orb o1"></div>
     <div class="orb o2"></div>
     <div class="orb o3"></div>
-    <div class="grain"></div>
   </div>
 
   <div class="wrap">
@@ -21,103 +150,38 @@
       <div class="hero-top">
         <div class="logo">
           <span class="spark"></span>
-          <span class="logo-text">Webhook Inbox</span>
+          <strong>Webhook Inbox</strong>
         </div>
-
-        <div class="pill pill-live" id="livePill">LIVE</div>
+        <div class="pill">LIVE</div>
       </div>
 
       <h1 class="title">Receive & inspect webhook payloads</h1>
-      <p class="subtitle">Purple-glass dashboard for posts. Copy. Filter. Test.</p>
+      <p class="subtitle">Purple-glass dashboard for posts.</p>
 
       <div class="endpoint glass">
-        <div class="endpoint-left">
-          <div class="label">Webhook endpoint</div>
-          <div class="mono" id="endpointUrl">…</div>
-        </div>
-
-        <div class="endpoint-actions">
-          <button class="btn btn-ghost" data-copy="#endpointUrl">Copy URL</button>
-          <button class="btn btn-primary" id="btnSendSample">Send sample</button>
+        <div>
+          <div style="font-size:12px; color:var(--faint)">Webhook endpoint</div>
+          <code>POST /api/webhook</code>
         </div>
       </div>
     </header>
 
     <main class="grid">
       <section class="panel glass">
-        <div class="panel-head">
-          <h2>Controls</h2>
-          <div class="mini" id="storageMini">storage: …</div>
-        </div>
-
-        <div class="row">
-          <button class="btn btn-secondary" id="btnPause">Pause</button>
-          <button class="btn btn-ghost" id="btnClearView">Clear view</button>
-        </div>
-
-        <div class="field">
-          <label for="search">Search</label>
-          <input id="search" class="input" placeholder="id, key, value, ip…" autocomplete="off" />
-        </div>
-
-        <details class="details">
-          <summary>Send a custom test payload</summary>
-
-          <div class="field">
-            <label for="testJson">JSON</label>
-            <textarea id="testJson" class="textarea" spellcheck="false">{ "hello": "world", "purple": true }</textarea>
-          </div>
-
-          <div class="row">
-            <button class="btn btn-primary" id="btnSendCustom">Send</button>
-            <button class="btn btn-ghost" id="btnPretty">Pretty</button>
-          </div>
-
-          <div class="mini" id="testResult"></div>
-        </details>
-
-        <div class="stats">
-          <div class="stat">
-            <div class="stat-k">Events</div>
-            <div class="stat-v" id="statCount">0</div>
-          </div>
-          <div class="stat">
-            <div class="stat-k">Last update</div>
-            <div class="stat-v" id="statUpdated">—</div>
-          </div>
-          <div class="stat">
-            <div class="stat-k">Bytes</div>
-            <div class="stat-v" id="statBytes">—</div>
-          </div>
-        </div>
-
-        <div class="hint">
-          Optional security: set <code>WEBHOOK_TOKEN</code> on your deploy, then send header
-          <code>X-Webhook-Token</code> with your POSTs.
-        </div>
+        <h3>Controls</h3>
+        <p>Waiting for webhooks…</p>
       </section>
 
-      <section class="panel glass feed">
-        <div class="panel-head feed-head">
-          <h2>Incoming</h2>
-          <div class="row right">
-            <button class="btn btn-ghost" id="btnCopyCurl">Copy cURL</button>
-          </div>
+      <section class="panel glass">
+        <div class="empty">
+          No webhooks yet.
         </div>
-
-        <div id="empty" class="empty">
-          No webhooks yet. Send a POST to <span class="mono" id="endpointUrlInline">…</span>.
-        </div>
-
-        <div id="feed" class="feed-list"></div>
       </section>
     </main>
 
-    <footer class="foot">
-      <span class="mini">Made for quick webhook debugging ✨</span>
+    <footer>
+      Made by mystixx.dev · Discord
     </footer>
-
-    <div class="toast" id="toast" aria-live="polite"></div>
   </div>
 </body>
 </html>
